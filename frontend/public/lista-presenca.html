@@ -762,6 +762,62 @@
                 });
             }
         });
+
+        // Carregar listas finalizadas para download
+        async function loadCompletedLists() {
+            try {
+                const response = await fetch(`${API_URL}/attendance-lists`);
+                const lists = await response.json();
+                
+                // Filtrar apenas listas finalizadas
+                const completedLists = lists.filter(list => list.status === 'completed');
+                
+                const container = document.getElementById('completedListsContainer');
+                
+                if (completedLists.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <h3>Nenhuma lista finalizada ainda</h3>
+                            <p>As listas finalizadas aparecerão aqui</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = completedLists.map(list => {
+                    const meetingDate = new Date(list.meeting_date).toLocaleDateString('pt-BR');
+                    const startTime = new Date(list.start_time).toLocaleString('pt-BR');
+                    
+                    return `
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #28a745;">
+                            <h3 style="color: #333; margin-bottom: 10px;">${list.course_title}</h3>
+                            <p style="color: #666; margin: 5px 0;"><strong>📍 Instalação:</strong> ${list.installation_name}</p>
+                            <p style="color: #666; margin: 5px 0;"><strong>📅 Data:</strong> ${meetingDate} às ${list.meeting_time}</p>
+                            <p style="color: #666; margin: 5px 0;"><strong>👨‍🏫 Instrutor:</strong> ${list.instructor_name}</p>
+                            <p style="color: #666; margin: 5px 0;"><strong>⏱️ Duração:</strong> ${list.duration || 'N/A'}</p>
+                            <p style="color: #666; margin: 5px 0;"><strong>📝 Finalizada em:</strong> ${new Date(list.end_time).toLocaleString('pt-BR')}</p>
+                            <button class="button success" onclick="downloadPDFDirect('${list.id}')" style="margin-top: 15px;">
+                                📄 BAIXAR PDF
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Erro ao carregar listas finalizadas:', error);
+                document.getElementById('completedListsContainer').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: red;">
+                        <h3>Erro ao carregar listas</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para baixar PDF diretamente
+        function downloadPDFDirect(listId) {
+            window.open(`${API_URL}/attendance-lists/${listId}/pdf`, '_blank');
+        }
     </script>
 </body>
 </html>
