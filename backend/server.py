@@ -474,17 +474,20 @@ async def generate_pdf(list_id: str):
         elements.append(title)
         elements.append(Spacer(1, 0.2*inch))
         
-        # Informações da instalação e data
+        # Informações da instalação, data, duração e hora
         info_data = [
-            ['INSTALAÇÃO / FACILITY:', attendance_list['installation_name'], '', 
+            ['INSTALAÇÃO / FACILITY:', attendance_list['installation_name'], '', '',
              'DATA / DATE:', attendance_list['meeting_date'], 
-             'DURAÇÃO / DURATION:', attendance_list.get('duration', 'Em andamento')]
+             'DURAÇÃO / DURATION:', attendance_list.get('duration', ''),
+             'HORA / TIME:', attendance_list['meeting_time']]
         ]
         
-        info_table = Table(info_data, colWidths=[1.2*inch, 2*inch, 0.3*inch, 0.8*inch, 1*inch, 1.2*inch, 0.8*inch])
+        info_table = Table(info_data, colWidths=[1.1*inch, 1.9*inch, 0.2*inch, 0.2*inch, 
+                                                   0.7*inch, 0.8*inch, 1.1*inch, 0.6*inch,
+                                                   0.7*inch, 0.6*inch])
         info_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
