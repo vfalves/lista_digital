@@ -443,10 +443,14 @@
             if (tabName === 'create') {
                 document.querySelector('.tab:nth-child(1)').classList.add('active');
                 document.getElementById('createTab').classList.add('active');
-            } else {
+            } else if (tabName === 'manage') {
                 document.querySelector('.tab:nth-child(2)').classList.add('active');
                 document.getElementById('manageTab').classList.add('active');
                 loadActiveList();
+            } else if (tabName === 'download') {
+                document.querySelector('.tab:nth-child(3)').classList.add('active');
+                document.getElementById('downloadTab').classList.add('active');
+                loadCompletedLists();
             }
         }
 
