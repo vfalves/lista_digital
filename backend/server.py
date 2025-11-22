@@ -52,7 +52,7 @@ def generate_registration_code():
 # ===========================
 
 class ProfessionalCreate(BaseModel):
-    code: str  # credential_id em base64
+    code: str  # credential_id em base64 (opcional se usar apenas registro)
     name: str
     email: EmailStr
     profession: str
@@ -61,6 +61,7 @@ class ProfessionalCreate(BaseModel):
 class ProfessionalResponse(BaseModel):
     id: str
     code: str
+    registration_code: Optional[str] = None  # Código único de registro
     name: str
     email: str
     profession: str
