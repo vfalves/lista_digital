@@ -36,6 +36,18 @@ api_router = APIRouter(prefix="/api")
 
 
 # ===========================
+# UTILITY FUNCTIONS
+# ===========================
+
+def generate_registration_code():
+    """Gera um código único de registro no formato PRF-YYYY-XXXX"""
+    year = datetime.now().year
+    # Gera 4 caracteres alfanuméricos aleatórios
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    return f"PRF-{year}-{random_part}"
+
+
+# ===========================
 # MODELS
 # ===========================
 
