@@ -120,7 +120,7 @@ class AttendanceRecordResponse(BaseModel):
 
 @api_router.post("/professionals", response_model=ProfessionalResponse)
 async def create_professional(professional: ProfessionalCreate):
-    """Cadastrar um novo profissional com biometria"""
+    """Cadastrar um novo profissional com biometria e código de registro único"""
     try:
         # Verificar se já existe profissional com esse code (credential_id)
         existing = supabase.table('professionals').select('*').eq('code', professional.code).execute()
@@ -133,8 +133,23 @@ async def create_professional(professional: ProfessionalCreate):
         if existing_email.data and len(existing_email.data) > 0:
             raise HTTPException(status_code=400, detail="Email já cadastrado")
         
-        # Inserir novo profissional
+        # Gerar código de registro único
+        max_attempts = 10
+        registration_code = None
+        
+        for _ in range(max_attempts):
+            registration_code = generate_registration_code()
+            # Verificar se o código já existe
+            existing_code = supabase.table('professionals').select('*').eq('registration_code', registration_code).execute()
+            if not existing_code.data or len(existing_code.data) == 0:
+                break
+        
+        if not registration_code:
+            raise HTTPException(status_code=500, detail="Não foi possível gerar código único")
+        
+        # Inserir novo profissional com código de registro
         data = professional.model_dump()
+        data['registration_code'] = registration_code
         result = supabase.table('professionals').insert(data).execute()
         
         if not result.data or len(result.data) == 0:
