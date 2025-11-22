@@ -679,6 +679,78 @@
             document.getElementById('meeting_date').valueAsDate = now;
             document.getElementById('meeting_time').value = now.toTimeString().slice(0, 5);
         });
+
+        // Funções para código manual
+        function showCodeModal() {
+            if (!currentListId) {
+                showMessage('manageMessage', '❌ Nenhuma lista ativa', 'error');
+                return;
+            }
+            document.getElementById('codeModal').style.display = 'block';
+            document.getElementById('manualCodeInput').value = '';
+            document.getElementById('manualCodeInput').focus();
+        }
+
+        function closeCodeModal() {
+            document.getElementById('codeModal').style.display = 'none';
+        }
+
+        async function submitManualCode() {
+            const code = document.getElementById('manualCodeInput').value.trim().toUpperCase();
+            
+            if (!code) {
+                alert('Por favor, digite o código de registro');
+                return;
+            }
+
+            if (!currentListId) {
+                showMessage('manageMessage', '❌ Nenhuma lista ativa', 'error');
+                closeCodeModal();
+                return;
+            }
+
+            try {
+                showMessage('manageMessage', '🔍 Verificando código...', 'info');
+                closeCodeModal();
+
+                // Registrar presença usando código de registro
+                const response = await fetch(`${API_URL}/attendance-records`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        list_id: currentListId,
+                        registration_code: code
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+
+                const result = await response.json();
+                showMessage('manageMessage', `✅ Presença registrada: ${result.professional_name}`, 'success');
+
+                // Recarregar tabela
+                await loadAttendanceRecords(currentListId);
+
+            } catch (error) {
+                console.error('Erro ao registrar presença:', error);
+                showMessage('manageMessage', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        // Permitir Enter no input de código
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('manualCodeInput');
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        submitManualCode();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
