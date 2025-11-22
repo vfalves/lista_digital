@@ -399,6 +399,31 @@
         </div>
     </div>
 
+    <!-- Modal para inserir código manualmente -->
+    <div id="codeModal" class="modal">
+        <div class="modal-content">
+            <h3>🔢 Inserir Código de Registro</h3>
+            <p style="color: #666; margin-bottom: 15px; text-align: center;">
+                Digite o código de registro fornecido no cadastro
+            </p>
+            <input 
+                type="text" 
+                id="manualCodeInput" 
+                class="code-input" 
+                placeholder="PRF-2024-XXXX"
+                maxlength="15"
+            />
+            <div class="button-group">
+                <button class="button" onclick="submitManualCode()">
+                    ✅ Confirmar
+                </button>
+                <button class="button" style="background: #6c757d;" onclick="closeCodeModal()">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = window.location.origin + '/api';
         let currentListId = null;
