@@ -395,16 +395,23 @@
                     return;
                 }
 
+                // Verificar se está em HTTPS
+                if (window.location.protocol !== 'https:') {
+                    showMessage('❌ Biometria requer HTTPS. Acesse via https://attendance-bio.preview.emergentagent.com', 'error');
+                    return;
+                }
+
                 // Verificar se WebAuthn está disponível
                 if (!window.PublicKeyCredential) {
-                    throw new Error('Seu navegador não suporta autenticação biométrica. Use Chrome, Safari ou Edge em um dispositivo com leitor biométrico.');
+                    showMessage('❌ Seu navegador não suporta biometria. Use Chrome, Safari ou Edge no celular.', 'error');
+                    return;
                 }
 
                 const captureBtn = document.getElementById('captureBtn');
                 captureBtn.disabled = true;
-                captureBtn.textContent = '⏳ Aguarde...';
+                captureBtn.textContent = '⏳ Aguardando digital...';
 
-                showMessage('👆 COLOQUE SEU DEDO NO LEITOR BIOMÉTRICO AGORA!', 'info');
+                showMessage('🔐 COLOQUE SEU DEDO NO LEITOR BIOMÉTRICO AGORA! (Toque no sensor do celular)', 'info');
                 
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
