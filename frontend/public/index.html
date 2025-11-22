@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Lista de Presença Biométrica</title>
+    <title>Cadastro de Profissionais</title>
     <style>
         * {
             margin: 0;
@@ -15,120 +15,708 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
         .container {
+            max-width: 600px;
+            margin: 0 auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
-            max-width: 500px;
-            width: 100%;
+        }
+
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
 
         h1 {
             color: #333;
+            margin-bottom: 30px;
             text-align: center;
-            margin-bottom: 10px;
-            font-size: 28px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
             font-size: 14px;
         }
 
-        .menu {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
 
-        .menu-button {
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-button {
+            width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 20px 30px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 8px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
 
-        .menu-button:hover {
+        .submit-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
-        .menu-button:active {
-            transform: translateY(0);
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .icon {
-            font-size: 24px;
-        }
-
-        .footer {
-            margin-top: 30px;
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
             text-align: center;
-            color: white;
-            font-size: 12px;
+            font-weight: 600;
+            display: none;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
 
-            h1 {
-                font-size: 24px;
-            }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
 
-            .menu-button {
-                padding: 15px 20px;
-                font-size: 16px;
-            }
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .fingerprint-icon {
+            text-align: center;
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .list-section {
+            margin-top: 40px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 30px;
+        }
+
+        .professional-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .professional-item h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .professional-item p {
+            color: #666;
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        /* Modal para código de registro */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 40px;
+            max-width: 500px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .registration-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .modal-info {
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-button {
+            background: #667eea;
+            color: white;
+        }
+
+        .copy-button:hover {
+            background: #5568d3;
+        }
+
+        .print-button {
+            background: #28a745;
+            color: white;
+        }
+
+        .print-button:hover {
+            background: #218838;
+        }
+
+        .close-modal-button {
+            background: #6c757d;
+            color: white;
+        }
+
+        .close-modal-button:hover {
+            background: #5a6268;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📋 Sistema de Lista de Presença</h1>
-        <p class="subtitle">Autenticação Biométrica</p>
+        <button class="back-button" onclick="window.location.href='index.html'">← Voltar</button>
         
-        <div class="menu">
-            <button class="menu-button" onclick="window.location.href='cadastro.html'">
-                <span class="icon">👤</span>
-                <span>Cadastro de Profissionais</span>
+        <h1>👤 Cadastro de Profissionais</h1>
+        
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+                <strong>⚠️ ATENÇÃO:</strong> Use um celular com leitor biométrico (Touch ID/Face ID/Digital).
+                A biometria será solicitada ao clicar em "🔐 CADASTRAR DIGITAL".
+            </p>
+            <button onclick="testBiometricSupport()" style="margin-top: 10px; padding: 8px 15px; background: #ffc107; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                🧪 Testar Compatibilidade do Dispositivo
+            </button>
+        </div>
+        
+        <div class="fingerprint-icon">🔐</div>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="name">Nome Completo *</label>
+                <input type="text" id="name" required placeholder="Digite o nome completo">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Corporativo *</label>
+                <input type="email" id="email" required placeholder="exemplo@empresa.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="profession">Função *</label>
+                <input type="text" id="profession" required placeholder="Ex: Técnico, Engenheiro, etc">
+            </div>
+            
+            <div class="form-group">
+                <label for="company">Empresa *</label>
+                <input type="text" id="company" required placeholder="Nome da empresa">
+            </div>
+            
+            <button type="button" class="submit-button" id="captureBtn" onclick="captureBiometric()">
+                🔐 CADASTRAR DIGITAL
             </button>
             
-            <button class="menu-button" onclick="window.location.href='lista-presenca.html'">
-                <span class="icon">📝</span>
-                <span>Gerenciar Lista de Presença</span>
-            </button>
-            
-            <button class="menu-button" onclick="window.location.href='visualizar-listas.html'">
-                <span class="icon">📊</span>
-                <span>Visualizar Listas</span>
+            <div id="biometricStatus" style="display: none; text-align: center; margin-top: 15px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724; font-weight: 600;">
+                ✅ Digital cadastrada com sucesso!<br/>
+                <button type="submit" class="submit-button" id="finalizeBtn" style="margin-top: 10px;">
+                    ✅ FINALIZAR CADASTRO
+                </button>
+            </div>
+        </form>
+        
+        <div id="message" class="message"></div>
+
+        <div class="list-section">
+            <h2>Profissionais Cadastrados</h2>
+            <div id="professionalsList" class="loading">Carregando...</div>
+        </div>
+    </div>
+
+    <!-- Modal para exibir código de registro -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <h2>✅ Cadastro Realizado com Sucesso!</h2>
+            <p class="modal-info">
+                <strong>Seu código de registro único foi gerado:</strong>
+            </p>
+            <div class="registration-code" id="displayRegistrationCode"></div>
+            <p class="modal-info">
+                ⚠️ <strong>IMPORTANTE:</strong> Guarde este código em local seguro!<br/>
+                Você pode usar este código OU sua digital para registrar presença.
+            </p>
+            <div class="modal-buttons">
+                <button class="modal-button copy-button" onclick="copyRegistrationCode()">
+                    📋 Copiar Código
+                </button>
+                <button class="modal-button print-button" onclick="printRegistrationCode()">
+                    🖨️ Imprimir
+                </button>
+            </div>
+            <button class="modal-button close-modal-button" onclick="closeRegistrationModal()" style="margin-top: 10px;">
+                Fechar
             </button>
         </div>
     </div>
 
-    <div class="footer">
-        <p>Sistema Biométrico © 2025 | WebAuthn Enabled 🔐</p>
-    </div>
+    <script>
+        const API_URL = window.location.origin + '/api';
+
+        // Função para converter ArrayBuffer para Base64
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        // Função para exibir mensagem
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Carregar lista de profissionais
+        async function loadProfessionals() {
+            try {
+                const response = await fetch(`${API_URL}/professionals`);
+                const professionals = await response.json();
+                
+                const listDiv = document.getElementById('professionalsList');
+                
+                if (professionals.length === 0) {
+                    listDiv.innerHTML = '<p class="loading">Nenhum profissional cadastrado ainda.</p>';
+                    return;
+                }
+                
+                listDiv.innerHTML = professionals.map(prof => `
+                    <div class="professional-item">
+                        <h3>${prof.name}</h3>
+                        <p><strong>Email:</strong> ${prof.email}</p>
+                        <p><strong>Função:</strong> ${prof.profession}</p>
+                        <p><strong>Empresa:</strong> ${prof.company}</p>
+                        <p style="font-size: 12px; color: #999;">Cadastrado em: ${new Date(prof.created_at).toLocaleString('pt-BR')}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar profissionais:', error);
+                document.getElementById('professionalsList').innerHTML = '<p class="loading" style="color: red;">Erro ao carregar profissionais</p>';
+            }
+        }
+
+        // Variável global para armazenar o credential ID
+        let capturedCredentialId = null;
+
+        // ETAPA 1: Capturar biometria
+        async function captureBiometric() {
+            try {
+                // Validar dados primeiro
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const profession = document.getElementById('profession').value.trim();
+                const company = document.getElementById('company').value.trim();
+
+                if (!name || !email || !profession || !company) {
+                    showMessage('❌ Preencha todos os campos antes de cadastrar a digital', 'error');
+                    return;
+                }
+
+                // Verificar se está em HTTPS
+                if (window.location.protocol !== 'https:') {
+                    showMessage('❌ Biometria requer HTTPS. Acesse via https://attendance-bio.preview.emergentagent.com', 'error');
+                    return;
+                }
+
+                // Verificar se WebAuthn está disponível
+                if (!window.PublicKeyCredential) {
+                    showMessage('❌ Seu navegador não suporta biometria. Use Chrome, Safari ou Edge no celular.', 'error');
+                    return;
+                }
+
+                const captureBtn = document.getElementById('captureBtn');
+                captureBtn.disabled = true;
+                captureBtn.textContent = '⏳ Aguardando digital...';
+
+                showMessage('🔐 COLOQUE SEU DEDO NO LEITOR BIOMÉTRICO AGORA! (Toque no sensor do celular)', 'info');
+                
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                // Criar credencial biométrica
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: 'Sistema de Lista de Presença',
+                            id: window.location.hostname
+                        },
+                        user: {
+                            id: window.crypto.getRandomValues(new Uint8Array(16)),
+                            name: email,
+                            displayName: name
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+
+                // Converter credential ID para base64
+                capturedCredentialId = arrayBufferToBase64(credential.rawId);
+
+                // Mostrar status de sucesso
+                showMessage('✅ Digital capturada com sucesso!', 'success');
+                document.getElementById('biometricStatus').style.display = 'block';
+                captureBtn.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Erro ao capturar biometria:', error);
+                const captureBtn = document.getElementById('captureBtn');
+                captureBtn.disabled = false;
+                captureBtn.textContent = '🔐 CADASTRAR DIGITAL';
+                
+                if (error.name === 'NotAllowedError') {
+                    showMessage('❌ Operação cancelada. Clique novamente e coloque o dedo no leitor.', 'error');
+                } else if (error.name === 'InvalidStateError') {
+                    showMessage('❌ Esta digital já está cadastrada no sistema', 'error');
+                } else {
+                    showMessage(`❌ ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // ETAPA 2: Finalizar cadastro
+        async function registerProfessional(name, email, profession, company, credentialId) {
+            try {
+                showMessage('⏳ Finalizando cadastro...', 'info');
+
+                // Enviar para o backend
+                const response = await fetch(`${API_URL}/professionals`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: credentialId,
+                        name: name,
+                        email: email,
+                        profession: profession,
+                        company: company
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Erro ao cadastrar profissional');
+                }
+
+                const result = await response.json();
+                showMessage('✅ Profissional cadastrado com sucesso!', 'success');
+                
+                // Mostrar modal com código de registro
+                if (result.registration_code) {
+                    document.getElementById('displayRegistrationCode').textContent = result.registration_code;
+                    document.getElementById('registrationModal').style.display = 'block';
+                    window.currentRegistrationCode = result.registration_code;
+                }
+                
+                // Limpar formulário
+                document.getElementById('registrationForm').reset();
+                document.getElementById('biometricStatus').style.display = 'none';
+                document.getElementById('captureBtn').style.display = 'block';
+                capturedCredentialId = null;
+                
+                // Recarregar lista
+                await loadProfessionals();
+                
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                showMessage(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        // Event listener do formulário (finalizar cadastro)
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!capturedCredentialId) {
+                showMessage('❌ Cadastre sua digital primeiro!', 'error');
+                return;
+            }
+            
+            const finalizeBtn = document.getElementById('finalizeBtn');
+            finalizeBtn.disabled = true;
+            finalizeBtn.textContent = '⏳ Finalizando...';
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const profession = document.getElementById('profession').value.trim();
+            const company = document.getElementById('company').value.trim();
+            
+            await registerProfessional(name, email, profession, company, capturedCredentialId);
+            
+            finalizeBtn.disabled = false;
+            finalizeBtn.textContent = '✅ FINALIZAR CADASTRO';
+        });
+
+        // Carregar profissionais ao iniciar
+        loadProfessionals();
+
+        // Função para testar compatibilidade biométrica
+        function testBiometricSupport() {
+            let message = '=== TESTE DE COMPATIBILIDADE ===\n\n';
+            
+            // 1. HTTPS
+            message += `1. Protocolo: ${window.location.protocol}\n`;
+            if (window.location.protocol !== 'https:') {
+                message += '   ❌ ERRO: Precisa ser HTTPS!\n\n';
+            } else {
+                message += '   ✅ OK: HTTPS ativo\n\n';
+            }
+            
+            // 2. PublicKeyCredential
+            message += `2. WebAuthn API:\n`;
+            if (window.PublicKeyCredential) {
+                message += '   ✅ OK: Navegador compatível\n\n';
+            } else {
+                message += '   ❌ ERRO: Navegador não suporta biometria\n';
+                message += '   Use Chrome, Safari ou Edge\n\n';
+            }
+            
+            // 3. Navegador
+            message += `3. Navegador: ${navigator.userAgent.substring(0, 60)}...\n\n`;
+            
+            // 4. Plataforma
+            message += `4. Dispositivo: ${navigator.platform}\n\n`;
+            
+            // 5. Teste real
+            message += '5. Teste Real:\n';
+            message += '   Aguarde, vou pedir sua digital agora...\n\n';
+            
+            alert(message);
+            
+            // Tentar capturar digital
+            if (window.PublicKeyCredential && window.location.protocol === 'https:') {
+                testRealBiometric();
+            } else {
+                alert('❌ Teste cancelado: Requisitos não atendidos');
+            }
+        }
+
+        // Teste real de biometria
+        async function testRealBiometric() {
+            try {
+                showMessage('👆 COLOQUE SEU DEDO NO LEITOR AGORA! (Teste)', 'info');
+                
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: 'Teste Biometria',
+                            id: window.location.hostname
+                        },
+                        user: {
+                            id: window.crypto.getRandomValues(new Uint8Array(16)),
+                            name: 'teste@test.com',
+                            displayName: 'Teste'
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+
+                alert('✅ SUCESSO!\n\nSua biometria foi capturada!\nO sistema está funcionando perfeitamente.\n\nAgora você pode cadastrar profissionais normalmente.');
+                showMessage('✅ Teste bem-sucedido! Biometria funcionando!', 'success');
+                
+            } catch (error) {
+                let errorMsg = '❌ ERRO NO TESTE:\n\n';
+                errorMsg += `Erro: ${error.name}\n`;
+                errorMsg += `Mensagem: ${error.message}\n\n`;
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += 'POSSÍVEIS CAUSAS:\n';
+                    errorMsg += '• Você cancelou a operação\n';
+                    errorMsg += '• Celular não tem leitor biométrico\n';
+                    errorMsg += '• Biometria não configurada\n';
+                    errorMsg += '• Permissão negada\n\n';
+                    errorMsg += 'SOLUÇÃO:\n';
+                    errorMsg += '1. Verifique se seu celular tem leitor de digital\n';
+                    errorMsg += '2. Configure a biometria nas configurações\n';
+                    errorMsg += '3. Tente novamente';
+                } else if (error.name === 'SecurityError') {
+                    errorMsg += 'Erro de segurança. Verifique se está em HTTPS.';
+                } else {
+                    errorMsg += 'Erro desconhecido. Entre em contato com suporte.';
+                }
+                
+                alert(errorMsg);
+                showMessage(`❌ Teste falhou: ${error.name}`, 'error');
+            }
+        }
+
+        // Funções do modal de código de registro
+        function closeRegistrationModal() {
+            document.getElementById('registrationModal').style.display = 'none';
+        }
+
+        function copyRegistrationCode() {
+            const code = window.currentRegistrationCode;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Código copiado para a área de transferência!');
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Código copiado!');
+            });
+        }
+
+        function printRegistrationCode() {
+            const code = window.currentRegistrationCode;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Código de Registro</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 40px;
+                            text-align: center;
+                        }
+                        h1 { color: #667eea; }
+                        .code {
+                            font-size: 48px;
+                            font-weight: bold;
+                            color: #667eea;
+                            border: 3px solid #667eea;
+                            padding: 30px;
+                            margin: 30px 0;
+                            border-radius: 10px;
+                            letter-spacing: 3px;
+                            font-family: 'Courier New', monospace;
+                        }
+                        .info { margin: 20px 0; color: #666; }
+                        @media print {
+                            button { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>🎫 Código de Registro</h1>
+                    <div class="code">${code}</div>
+                    <p class="info">Este é seu código único de registro.</p>
+                    <p class="info">Guarde em local seguro para registrar presença em treinamentos.</p>
+                    <button onclick="window.print()" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">
+                        🖨️ Imprimir
+                    </button>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 500);
+        }
+    </script>
 </body>
 </html>
