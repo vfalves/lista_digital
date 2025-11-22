@@ -182,6 +182,24 @@ async def get_professional_by_code(code: str):
         raise HTTPException(status_code=500, detail=f"Erro ao buscar profissional: {str(e)}")
 
 
+@api_router.get("/professionals/by-registration/{registration_code}", response_model=ProfessionalResponse)
+async def get_professional_by_registration(registration_code: str):
+    """Buscar profissional pelo código de registro único"""
+    try:
+        result = supabase.table('professionals').select('*').eq('registration_code', registration_code.upper()).execute()
+        
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=404, detail="Código de registro não encontrado")
+        
+        return result.data[0]
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao buscar profissional: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar profissional: {str(e)}")
+
+
 @api_router.get("/professionals", response_model=List[ProfessionalResponse])
 async def list_professionals():
     """Listar todos os profissionais"""
