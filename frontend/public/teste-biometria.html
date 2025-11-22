@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Biometria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 10px;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            text-align: left;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Teste de Biometria WebAuthn</h1>
+    
+    <div id="status" class="status info">
+        Aguardando teste...
+    </div>
+
+    <button onclick="testWebAuthn()">🧪 Testar Biometria</button>
+    <button onclick="testBrowser()">🔍 Verificar Navegador</button>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<div style="color: ${type === 'error' ? 'red' : type === 'success' ? 'green' : 'black'}">[${time}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function testBrowser() {
+            addLog('=== TESTE DE NAVEGADOR ===');
+            
+            // Protocolo
+            addLog(`Protocolo: ${window.location.protocol}`);
+            if (window.location.protocol !== 'https:') {
+                addLog('⚠️ AVISO: WebAuthn requer HTTPS!', 'error');
+            }
+            
+            // WebAuthn
+            if (window.PublicKeyCredential) {
+                addLog('✅ PublicKeyCredential disponível', 'success');
+            } else {
+                addLog('❌ PublicKeyCredential NÃO disponível', 'error');
+                updateStatus('❌ Navegador não suporta biometria', 'error');
+                return;
+            }
+
+            // User Agent
+            addLog(`Navegador: ${navigator.userAgent}`);
+            
+            // Plataforma
+            addLog(`Plataforma: ${navigator.platform}`);
+            
+            updateStatus('✅ Navegador compatível com biometria', 'success');
+        }
+
+        async function testWebAuthn() {
+            addLog('=== TESTE DE BIOMETRIA ===');
+            updateStatus('⏳ Testando biometria...', 'info');
+
+            try {
+                // Verificar suporte
+                if (!window.PublicKeyCredential) {
+                    throw new Error('PublicKeyCredential não disponível');
+                }
+
+                addLog('1. Gerando challenge...');
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                addLog('✅ Challenge gerado');
+
+                addLog('2. Configurando opções do WebAuthn...');
+                const publicKeyOptions = {
+                    challenge: challenge,
+                    rp: {
+                        name: 'Teste Biometria',
+                        id: window.location.hostname
+                    },
+                    user: {
+                        id: window.crypto.getRandomValues(new Uint8Array(16)),
+                        name: 'teste@example.com',
+                        displayName: 'Usuário Teste'
+                    },
+                    pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required'
+                    },
+                    timeout: 60000
+                };
+                addLog('✅ Opções configuradas');
+
+                addLog('3. 👆 COLOQUE SEU DEDO NO LEITOR AGORA!');
+                updateStatus('👆 COLOQUE SEU DEDO NO LEITOR BIOMÉTRICO!', 'info');
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyOptions
+                });
+
+                addLog('✅ BIOMETRIA CAPTURADA COM SUCESSO!', 'success');
+                addLog(`Credential ID: ${credential.id.substring(0, 30)}...`);
+                addLog(`Type: ${credential.type}`);
+                
+                updateStatus('✅ BIOMETRIA FUNCIONANDO PERFEITAMENTE!', 'success');
+
+            } catch (error) {
+                addLog(`❌ ERRO: ${error.name} - ${error.message}`, 'error');
+                
+                if (error.name === 'NotAllowedError') {
+                    updateStatus('❌ Operação cancelada ou sem biometria', 'error');
+                    addLog('Possíveis causas:', 'error');
+                    addLog('- Você cancelou a operação', 'error');
+                    addLog('- Dispositivo não tem leitor biométrico', 'error');
+                    addLog('- Biometria não configurada no dispositivo', 'error');
+                } else if (error.name === 'SecurityError') {
+                    updateStatus('❌ Erro de segurança (HTTPS necessário)', 'error');
+                } else {
+                    updateStatus(`❌ Erro: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Auto-teste ao carregar
+        window.onload = () => {
+            addLog('Página carregada');
+            testBrowser();
+        };
+    </script>
+</body>
+</html>
