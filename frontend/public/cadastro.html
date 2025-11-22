@@ -291,6 +291,32 @@
         </div>
     </div>
 
+    <!-- Modal para exibir código de registro -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <h2>✅ Cadastro Realizado com Sucesso!</h2>
+            <p class="modal-info">
+                <strong>Seu código de registro único foi gerado:</strong>
+            </p>
+            <div class="registration-code" id="displayRegistrationCode"></div>
+            <p class="modal-info">
+                ⚠️ <strong>IMPORTANTE:</strong> Guarde este código em local seguro!<br/>
+                Você pode usar este código OU sua digital para registrar presença.
+            </p>
+            <div class="modal-buttons">
+                <button class="modal-button copy-button" onclick="copyRegistrationCode()">
+                    📋 Copiar Código
+                </button>
+                <button class="modal-button print-button" onclick="printRegistrationCode()">
+                    🖨️ Imprimir
+                </button>
+            </div>
+            <button class="modal-button close-modal-button" onclick="closeRegistrationModal()" style="margin-top: 10px;">
+                Fechar
+            </button>
+        </div>
+    </div>
+
     <script>
         const API_URL = window.location.origin + '/api';
 
