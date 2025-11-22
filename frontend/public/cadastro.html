@@ -432,6 +432,13 @@
                 const result = await response.json();
                 showMessage('✅ Profissional cadastrado com sucesso!', 'success');
                 
+                // Mostrar modal com código de registro
+                if (result.registration_code) {
+                    document.getElementById('displayRegistrationCode').textContent = result.registration_code;
+                    document.getElementById('registrationModal').style.display = 'block';
+                    window.currentRegistrationCode = result.registration_code;
+                }
+                
                 // Limpar formulário
                 document.getElementById('registrationForm').reset();
                 
