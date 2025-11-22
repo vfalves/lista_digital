@@ -1,34 +1,34 @@
 # lista_digital
 (https://attendance-bio.preview.emergentagent.com)
 https://supabase.com/dashboard/project/xpxiwsqbgopdfdioljul
-### Backend:
+## 2️⃣ BACKEND - ARQUIVO .env
 
-- `/app/backend/server.py` (620 linhas - Backend FastAPI completo)
+**Arquivo: `backend/.env`**
 
-- `/app/backend/.env` (Credenciais Supabase)
+```env
 
-- `/app/backend/requirements.txt` (Dependências Python)
+MONGO_URL="mongodb://localhost:27017"
 
-### Frontend:
+DB_NAME="test_database"
 
-- `/app/frontend/public/index.html` (Menu principal)
+CORS_ORIGINS="*"
 
-- `/app/frontend/public/cadastro.html` (Cadastro biométrico em 2 etapas)
+SUPABASE_URL="https://xpxiwsqbgopdfdioljul.supabase.co"
 
-- `/app/frontend/public/lista-presenca.html` (Gerenciar listas + Download PDFs)
+SUPABASE_KEY="eyJ...9YQ"
 
-- `/app/frontend/public/visualizar-listas.html` (Visualizar todas as listas)
+```
 
-### Documentação:
+---
 
-- `/app/README_SISTEMA_BIOMETRICO.md` (Documentação completa)
+## 3️⃣ FRONTEND - ARQUIVO .env
 
-- `/app/GUIA_RAPIDO.md` (Guia do usuário)
+**Arquivo: `frontend/.env`**
 
-- `/app/CODIGO_COMPLETO_SISTEMA.md` (Este documento)
+```env
 
-- `/app/PASSO_A_PASSO_SUPABASE.md` (Como executar SQL)
+REACT_APP_BACKEND_URL=https://biometric-attend-5.preview.emergentagent.com
 
-### SQL:
+REACT_APP_ENABLE_VISUAL_EDITS=false
 
-- `/app/SQL_FINAL_SUPABASE.sql` (Script do banco)
+ENABLE_HEALTH_CHECK=false
