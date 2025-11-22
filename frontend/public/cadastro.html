@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Profissionais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .fingerprint-icon {
+            text-align: center;
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .list-section {
+            margin-top: 40px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 30px;
+        }
+
+        .professional-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .professional-item h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .professional-item p {
+            color: #666;
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='index.html'">← Voltar</button>
+        
+        <h1>👤 Cadastro de Profissionais</h1>
+        
+        <div class="fingerprint-icon">🔐</div>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="name">Nome Completo *</label>
+                <input type="text" id="name" required placeholder="Digite o nome completo">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Corporativo *</label>
+                <input type="email" id="email" required placeholder="exemplo@empresa.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="profession">Função *</label>
+                <input type="text" id="profession" required placeholder="Ex: Técnico, Engenheiro, etc">
+            </div>
+            
+            <div class="form-group">
+                <label for="company">Empresa *</label>
+                <input type="text" id="company" required placeholder="Nome da empresa">
+            </div>
+            
+            <button type="submit" class="submit-button" id="submitBtn">
+                🔒 Cadastrar e Vincular Digital
+            </button>
+        </form>
+        
+        <div id="message" class="message"></div>
+
+        <div class="list-section">
+            <h2>Profissionais Cadastrados</h2>
+            <div id="professionalsList" class="loading">Carregando...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+
+        // Função para converter ArrayBuffer para Base64
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        // Função para exibir mensagem
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Carregar lista de profissionais
+        async function loadProfessionals() {
+            try {
+                const response = await fetch(`${API_URL}/professionals`);
+                const professionals = await response.json();
+                
+                const listDiv = document.getElementById('professionalsList');
+                
+                if (professionals.length === 0) {
+                    listDiv.innerHTML = '<p class="loading">Nenhum profissional cadastrado ainda.</p>';
+                    return;
+                }
+                
+                listDiv.innerHTML = professionals.map(prof => `
+                    <div class="professional-item">
+                        <h3>${prof.name}</h3>
+                        <p><strong>Email:</strong> ${prof.email}</p>
+                        <p><strong>Função:</strong> ${prof.profession}</p>
+                        <p><strong>Empresa:</strong> ${prof.company}</p>
+                        <p style="font-size: 12px; color: #999;">Cadastrado em: ${new Date(prof.created_at).toLocaleString('pt-BR')}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar profissionais:', error);
+                document.getElementById('professionalsList').innerHTML = '<p class="loading" style="color: red;">Erro ao carregar profissionais</p>';
+            }
+        }
+
+        // Cadastrar profissional com biometria
+        async function registerProfessional(name, email, profession, company) {
+            try {
+                // Verificar se WebAuthn está disponível
+                if (!window.PublicKeyCredential) {
+                    throw new Error('Seu navegador não suporta autenticação biométrica. Use um navegador compatível.');
+                }
+
+                showMessage('Coloque seu dedo no leitor biométrico...', 'info');
+                
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                // Criar credencial biométrica
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: 'Sistema de Lista de Presença',
+                            id: window.location.hostname
+                        },
+                        user: {
+                            id: new Uint8Array(16),
+                            name: email,
+                            displayName: name
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+
+                // Converter credential ID para base64
+                const credentialId = arrayBufferToBase64(credential.rawId);
+
+                // Enviar para o backend
+                const response = await fetch(`${API_URL}/professionals`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: credentialId,
+                        name: name,
+                        email: email,
+                        profession: profession,
+                        company: company
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Erro ao cadastrar profissional');
+                }
+
+                const result = await response.json();
+                showMessage('✅ Profissional cadastrado com sucesso!', 'success');
+                
+                // Limpar formulário
+                document.getElementById('registrationForm').reset();
+                
+                // Recarregar lista
+                await loadProfessionals();
+                
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                if (error.name === 'NotAllowedError') {
+                    showMessage('❌ Cadastro cancelado ou biometria não disponível', 'error');
+                } else if (error.name === 'InvalidStateError') {
+                    showMessage('❌ Esta digital já está cadastrada no sistema', 'error');
+                } else {
+                    showMessage(`❌ ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Event listener do formulário
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processando...';
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const profession = document.getElementById('profession').value.trim();
+            const company = document.getElementById('company').value.trim();
+            
+            await registerProfessional(name, email, profession, company);
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🔒 Cadastrar e Vincular Digital';
+        });
+
+        // Carregar profissionais ao iniciar
+        loadProfessionals();
+    </script>
+</body>
+</html>
