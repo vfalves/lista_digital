@@ -549,6 +549,105 @@
         // Carregar profissionais ao iniciar
         loadProfessionals();
 
+        // Função para testar compatibilidade biométrica
+        function testBiometricSupport() {
+            let message = '=== TESTE DE COMPATIBILIDADE ===\n\n';
+            
+            // 1. HTTPS
+            message += `1. Protocolo: ${window.location.protocol}\n`;
+            if (window.location.protocol !== 'https:') {
+                message += '   ❌ ERRO: Precisa ser HTTPS!\n\n';
+            } else {
+                message += '   ✅ OK: HTTPS ativo\n\n';
+            }
+            
+            // 2. PublicKeyCredential
+            message += `2. WebAuthn API:\n`;
+            if (window.PublicKeyCredential) {
+                message += '   ✅ OK: Navegador compatível\n\n';
+            } else {
+                message += '   ❌ ERRO: Navegador não suporta biometria\n';
+                message += '   Use Chrome, Safari ou Edge\n\n';
+            }
+            
+            // 3. Navegador
+            message += `3. Navegador: ${navigator.userAgent.substring(0, 60)}...\n\n`;
+            
+            // 4. Plataforma
+            message += `4. Dispositivo: ${navigator.platform}\n\n`;
+            
+            // 5. Teste real
+            message += '5. Teste Real:\n';
+            message += '   Aguarde, vou pedir sua digital agora...\n\n';
+            
+            alert(message);
+            
+            // Tentar capturar digital
+            if (window.PublicKeyCredential && window.location.protocol === 'https:') {
+                testRealBiometric();
+            } else {
+                alert('❌ Teste cancelado: Requisitos não atendidos');
+            }
+        }
+
+        // Teste real de biometria
+        async function testRealBiometric() {
+            try {
+                showMessage('👆 COLOQUE SEU DEDO NO LEITOR AGORA! (Teste)', 'info');
+                
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: 'Teste Biometria',
+                            id: window.location.hostname
+                        },
+                        user: {
+                            id: window.crypto.getRandomValues(new Uint8Array(16)),
+                            name: 'teste@test.com',
+                            displayName: 'Teste'
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+
+                alert('✅ SUCESSO!\n\nSua biometria foi capturada!\nO sistema está funcionando perfeitamente.\n\nAgora você pode cadastrar profissionais normalmente.');
+                showMessage('✅ Teste bem-sucedido! Biometria funcionando!', 'success');
+                
+            } catch (error) {
+                let errorMsg = '❌ ERRO NO TESTE:\n\n';
+                errorMsg += `Erro: ${error.name}\n`;
+                errorMsg += `Mensagem: ${error.message}\n\n`;
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += 'POSSÍVEIS CAUSAS:\n';
+                    errorMsg += '• Você cancelou a operação\n';
+                    errorMsg += '• Celular não tem leitor biométrico\n';
+                    errorMsg += '• Biometria não configurada\n';
+                    errorMsg += '• Permissão negada\n\n';
+                    errorMsg += 'SOLUÇÃO:\n';
+                    errorMsg += '1. Verifique se seu celular tem leitor de digital\n';
+                    errorMsg += '2. Configure a biometria nas configurações\n';
+                    errorMsg += '3. Tente novamente';
+                } else if (error.name === 'SecurityError') {
+                    errorMsg += 'Erro de segurança. Verifique se está em HTTPS.';
+                } else {
+                    errorMsg += 'Erro desconhecido. Entre em contato com suporte.';
+                }
+                
+                alert(errorMsg);
+                showMessage(`❌ Teste falhou: ${error.name}`, 'error');
+            }
+        }
+
         // Funções do modal de código de registro
         function closeRegistrationModal() {
             document.getElementById('registrationModal').style.display = 'none';
