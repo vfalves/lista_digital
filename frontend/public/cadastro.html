@@ -378,15 +378,33 @@
             }
         }
 
-        // Cadastrar profissional com biometria
-        async function registerProfessional(name, email, profession, company) {
+        // Variável global para armazenar o credential ID
+        let capturedCredentialId = null;
+
+        // ETAPA 1: Capturar biometria
+        async function captureBiometric() {
             try {
-                // Verificar se WebAuthn está disponível
-                if (!window.PublicKeyCredential) {
-                    throw new Error('Seu navegador não suporta autenticação biométrica. Use um navegador compatível.');
+                // Validar dados primeiro
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const profession = document.getElementById('profession').value.trim();
+                const company = document.getElementById('company').value.trim();
+
+                if (!name || !email || !profession || !company) {
+                    showMessage('❌ Preencha todos os campos antes de cadastrar a digital', 'error');
+                    return;
                 }
 
-                showMessage('Coloque seu dedo no leitor biométrico...', 'info');
+                // Verificar se WebAuthn está disponível
+                if (!window.PublicKeyCredential) {
+                    throw new Error('Seu navegador não suporta autenticação biométrica. Use Chrome, Safari ou Edge em um dispositivo com leitor biométrico.');
+                }
+
+                const captureBtn = document.getElementById('captureBtn');
+                captureBtn.disabled = true;
+                captureBtn.textContent = '⏳ Aguarde...';
+
+                showMessage('👆 COLOQUE SEU DEDO NO LEITOR BIOMÉTRICO AGORA!', 'info');
                 
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
@@ -400,7 +418,7 @@
                             id: window.location.hostname
                         },
                         user: {
-                            id: new Uint8Array(16),
+                            id: window.crypto.getRandomValues(new Uint8Array(16)),
                             name: email,
                             displayName: name
                         },
@@ -414,7 +432,33 @@
                 });
 
                 // Converter credential ID para base64
-                const credentialId = arrayBufferToBase64(credential.rawId);
+                capturedCredentialId = arrayBufferToBase64(credential.rawId);
+
+                // Mostrar status de sucesso
+                showMessage('✅ Digital capturada com sucesso!', 'success');
+                document.getElementById('biometricStatus').style.display = 'block';
+                captureBtn.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Erro ao capturar biometria:', error);
+                const captureBtn = document.getElementById('captureBtn');
+                captureBtn.disabled = false;
+                captureBtn.textContent = '🔐 CADASTRAR DIGITAL';
+                
+                if (error.name === 'NotAllowedError') {
+                    showMessage('❌ Operação cancelada. Clique novamente e coloque o dedo no leitor.', 'error');
+                } else if (error.name === 'InvalidStateError') {
+                    showMessage('❌ Esta digital já está cadastrada no sistema', 'error');
+                } else {
+                    showMessage(`❌ ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // ETAPA 2: Finalizar cadastro
+        async function registerProfessional(name, email, profession, company, credentialId) {
+            try {
+                showMessage('⏳ Finalizando cadastro...', 'info');
 
                 // Enviar para o backend
                 const response = await fetch(`${API_URL}/professionals`, {
@@ -448,39 +492,41 @@
                 
                 // Limpar formulário
                 document.getElementById('registrationForm').reset();
+                document.getElementById('biometricStatus').style.display = 'none';
+                document.getElementById('captureBtn').style.display = 'block';
+                capturedCredentialId = null;
                 
                 // Recarregar lista
                 await loadProfessionals();
                 
             } catch (error) {
                 console.error('Erro no cadastro:', error);
-                if (error.name === 'NotAllowedError') {
-                    showMessage('❌ Cadastro cancelado ou biometria não disponível', 'error');
-                } else if (error.name === 'InvalidStateError') {
-                    showMessage('❌ Esta digital já está cadastrada no sistema', 'error');
-                } else {
-                    showMessage(`❌ ${error.message}`, 'error');
-                }
+                showMessage(`❌ ${error.message}`, 'error');
             }
         }
 
-        // Event listener do formulário
+        // Event listener do formulário (finalizar cadastro)
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Processando...';
+            if (!capturedCredentialId) {
+                showMessage('❌ Cadastre sua digital primeiro!', 'error');
+                return;
+            }
+            
+            const finalizeBtn = document.getElementById('finalizeBtn');
+            finalizeBtn.disabled = true;
+            finalizeBtn.textContent = '⏳ Finalizando...';
             
             const name = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim();
             const profession = document.getElementById('profession').value.trim();
             const company = document.getElementById('company').value.trim();
             
-            await registerProfessional(name, email, profession, company);
+            await registerProfessional(name, email, profession, company, capturedCredentialId);
             
-            submitBtn.disabled = false;
-            submitBtn.textContent = '🔒 Cadastrar e Vincular Digital';
+            finalizeBtn.disabled = false;
+            finalizeBtn.textContent = '✅ FINALIZAR CADASTRO';
         });
 
         // Carregar profissionais ao iniciar
