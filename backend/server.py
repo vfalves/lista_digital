@@ -565,16 +565,17 @@ async def generate_pdf(list_id: str):
                 prof.get('email', 'N/A'),
                 prof.get('profession', ''),
                 record['local'],
-                prof.get('company', '')
+                prof.get('company', ''),
+                entry_time_str  # ASSINATURA com data/hora
             ])
         
         # Adicionar linhas vazias até completar 30
         for i in range(len(records_result.data) + 1, 31):
-            attendance_data.append([str(i), '', 'N/A', '', attendance_list['location'], ''])
+            attendance_data.append([str(i), '', 'N/A', '', attendance_list['location'], '', ''])
         
-        # Criar tabela de participantes
+        # Criar tabela de participantes (com 7 colunas incluindo ASSINATURA)
         participants_table = Table(attendance_data, 
-                                  colWidths=[0.4*inch, 2*inch, 1.5*inch, 1.3*inch, 1.3*inch, 1*inch])
+                                  colWidths=[0.3*inch, 1.7*inch, 1.2*inch, 1.1*inch, 1.1*inch, 0.9*inch, 1.1*inch])
         
         participants_table.setStyle(TableStyle([
             # Header style
