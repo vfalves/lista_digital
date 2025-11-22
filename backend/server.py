@@ -606,14 +606,22 @@ async def generate_pdf(list_id: str):
             note_style
         )
         elements.append(note)
-        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Spacer(1, 0.15*inch))
         
-        # Rodapé
-        footer = Paragraph(
-            "Guia de Treinamento e Desenvolvimento / Training and Development Guide<br/>3500-MSB60-HRSTD-0006-04",
-            note_style
-        )
-        elements.append(footer)
+        # Rodapé com código do documento e revisão
+        footer_data = [
+            ['Guia de Treinamento e Desenvolvimento / Training and Development Guide\n3500-MSB60-HRSTD-0006-04', 
+             'Rev.4, 16 Fev/Feb 2024']
+        ]
+        footer_table = Table(footer_data, colWidths=[5.5*inch, 2*inch])
+        footer_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 6),
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.grey),
+        ]))
+        elements.append(footer_table)
         
         # Construir PDF
         doc.build(elements)
