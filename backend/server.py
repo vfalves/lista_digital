@@ -10,6 +10,8 @@ from typing import List, Optional
 from datetime import datetime, timezone, time
 from supabase import create_client, Client
 import io
+import random
+import string
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
