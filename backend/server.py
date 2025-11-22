@@ -318,15 +318,28 @@ async def complete_attendance_list(list_id: str):
 
 @api_router.post("/attendance-records", response_model=AttendanceRecordResponse)
 async def create_attendance_record(record: AttendanceRecordCreate):
-    """Registrar presença usando biometria"""
+    """Registrar presença usando biometria OU código de registro"""
     try:
-        # Buscar profissional pelo código da digital
-        prof_result = supabase.table('professionals').select('*').eq('code', record.code).execute()
+        # Validar que pelo menos um método foi fornecido
+        if not record.code and not record.registration_code:
+            raise HTTPException(status_code=400, detail="Forneça o código biométrico ou o código de registro")
         
-        if not prof_result.data or len(prof_result.data) == 0:
-            raise HTTPException(status_code=404, detail="Profissional não encontrado. Por favor, cadastre-se primeiro.")
+        # Buscar profissional pelo método fornecido
+        professional = None
         
-        professional = prof_result.data[0]
+        if record.registration_code:
+            # Buscar por código de registro
+            prof_result = supabase.table('professionals').select('*').eq('registration_code', record.registration_code.upper()).execute()
+            if prof_result.data and len(prof_result.data) > 0:
+                professional = prof_result.data[0]
+        elif record.code:
+            # Buscar por código biométrico
+            prof_result = supabase.table('professionals').select('*').eq('code', record.code).execute()
+            if prof_result.data and len(prof_result.data) > 0:
+                professional = prof_result.data[0]
+        
+        if not professional:
+            raise HTTPException(status_code=404, detail="Profissional não encontrado. Verifique o código e tente novamente.")
         
         # Buscar lista de presença
         list_result = supabase.table('attendance_lists').select('*').eq('id', record.list_id).execute()
