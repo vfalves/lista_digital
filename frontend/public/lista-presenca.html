@@ -364,9 +364,14 @@
             <div id="activeListContent" style="display: none;">
                 <div id="listInfo" class="list-info"></div>
 
-                <button class="button scan-button" onclick="scanFingerprint()">
-                    🔐 Registrar Presença (Escanear Digital)
-                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <button class="button" onclick="scanFingerprint()">
+                        🔐 Escanear Digital
+                    </button>
+                    <button class="button success" onclick="showCodeModal()">
+                        🔢 Inserir Código
+                    </button>
+                </div>
 
                 <h3>Participantes Registrados</h3>
                 <table class="attendance-table">
