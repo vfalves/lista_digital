@@ -559,6 +559,9 @@ async def generate_pdf(list_id: str):
             prof = record.get('professionals', {})
             entry_time_str = datetime.fromisoformat(record['entry_time'].replace('Z', '+00:00')).strftime('%d/%m/%Y %H:%M')
             
+            # Formato: "assinado digitalmente\n22/11/2025 14:30"
+            signature_text = f"assinado digitalmente\n{entry_time_str}"
+            
             attendance_data.append([
                 str(record['row_number']),
                 prof.get('name', ''),
@@ -566,7 +569,7 @@ async def generate_pdf(list_id: str):
                 prof.get('profession', ''),
                 record['local'],
                 prof.get('company', ''),
-                entry_time_str  # ASSINATURA com data/hora
+                signature_text  # ASSINATURA: "assinado digitalmente" + data/hora
             ])
         
         # Adicionar linhas vazias até completar 30
