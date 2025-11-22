@@ -478,6 +478,76 @@
 
         // Carregar profissionais ao iniciar
         loadProfessionals();
+
+        // Funções do modal de código de registro
+        function closeRegistrationModal() {
+            document.getElementById('registrationModal').style.display = 'none';
+        }
+
+        function copyRegistrationCode() {
+            const code = window.currentRegistrationCode;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Código copiado para a área de transferência!');
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Código copiado!');
+            });
+        }
+
+        function printRegistrationCode() {
+            const code = window.currentRegistrationCode;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Código de Registro</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 40px;
+                            text-align: center;
+                        }
+                        h1 { color: #667eea; }
+                        .code {
+                            font-size: 48px;
+                            font-weight: bold;
+                            color: #667eea;
+                            border: 3px solid #667eea;
+                            padding: 30px;
+                            margin: 30px 0;
+                            border-radius: 10px;
+                            letter-spacing: 3px;
+                            font-family: 'Courier New', monospace;
+                        }
+                        .info { margin: 20px 0; color: #666; }
+                        @media print {
+                            button { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>🎫 Código de Registro</h1>
+                    <div class="code">${code}</div>
+                    <p class="info">Este é seu código único de registro.</p>
+                    <p class="info">Guarde em local seguro para registrar presença em treinamentos.</p>
+                    <button onclick="window.print()" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">
+                        🖨️ Imprimir
+                    </button>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 500);
+        }
     </script>
 </body>
 </html>
