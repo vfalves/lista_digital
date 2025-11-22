@@ -98,7 +98,8 @@ class AttendanceListResponse(BaseModel):
 
 class AttendanceRecordCreate(BaseModel):
     list_id: str
-    code: str  # credential_id para buscar o professional
+    code: Optional[str] = None  # credential_id para buscar o professional (biometria)
+    registration_code: Optional[str] = None  # código de registro (manual)
 
 class AttendanceRecordResponse(BaseModel):
     id: str
