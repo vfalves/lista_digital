@@ -278,9 +278,16 @@
                 <input type="text" id="company" required placeholder="Nome da empresa">
             </div>
             
-            <button type="submit" class="submit-button" id="submitBtn">
-                🔒 Cadastrar e Vincular Digital
+            <button type="button" class="submit-button" id="captureBtn" onclick="captureBiometric()">
+                🔐 CADASTRAR DIGITAL
             </button>
+            
+            <div id="biometricStatus" style="display: none; text-align: center; margin-top: 15px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724; font-weight: 600;">
+                ✅ Digital cadastrada com sucesso!<br/>
+                <button type="submit" class="submit-button" id="finalizeBtn" style="margin-top: 10px;">
+                    ✅ FINALIZAR CADASTRO
+                </button>
+            </div>
         </form>
         
         <div id="message" class="message"></div>
