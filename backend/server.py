@@ -546,10 +546,10 @@ async def generate_pdf(list_id: str):
         elements.append(instructor_table)
         elements.append(Spacer(1, 0.2*inch))
         
-        # Cabeçalho da tabela de participantes
+        # Cabeçalho da tabela de participantes (seguindo modelo Excel)
         header_data = [
-            ['Nº', 'NOME COMPLETO\nFULL NAME', 'EMAIL\nE-MAIL', 
-             'FUNÇÃO\nROLE', 'LOCALIZAÇÃO\nLOCATION', 'EMPRESA\nCOMPANY']
+            ['Nº', 'NOME COMPLETO\nFULL NAME', 'MODEC E-MAIL\nE-MAIL MODEC', 
+             'FUNÇÃO\nROLE', '*LOCATION\nLOCALIZAÇÃO', 'EMPRESA\nCOMPANY', 'ASSINATURA\nSIGNATURE']
         ]
         
         # Adicionar registros de presença
